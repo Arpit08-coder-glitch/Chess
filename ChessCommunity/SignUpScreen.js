@@ -1,7 +1,7 @@
-// SignupScreen.js
 import React, { useState } from 'react';
 import { TextInput, Button, Text, View, StyleSheet } from 'react-native';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import Toast from 'react-native-toast-message'; // Import Toast
 import { auth } from './firebase'; // Import the Firebase auth instance
 
 const SignUpScreen = ({ navigation }) => {
@@ -13,12 +13,46 @@ const SignUpScreen = ({ navigation }) => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        console.log('User signed up:', user);
-        navigation.navigate('Login'); // Navigate to Login screen after successful signup
+
+        // Send email verification
+        sendEmailVerification(user)
+          .then(() => {
+            Toast.show({
+              type: 'success',
+              text1: 'Verification email sent',
+              text2: 'Please verify your email to proceed.',
+            });
+
+            const interval = setInterval(() => {
+              user.reload().then(() => {
+                if (user.emailVerified) {
+                  clearInterval(interval);
+                  Toast.show({
+                    type: 'success',
+                    text1: 'Email Verified',
+                    text2: 'You can now log in.',
+                  });
+                  navigation.navigate('Login');
+                }
+              });
+            }, 5000); // Check every 5 seconds
+          })
+          .catch((error) => {
+            setErrorMessage('Failed to send verification email.');
+            Toast.show({
+              type: 'error',
+              text1: 'Error',
+              text2: 'Failed to send verification email.',
+            });
+          });
       })
       .catch((error) => {
         setErrorMessage(error.message);
-        console.log('Error:', error.message);
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: error.message,
+        });
       });
   };
 
@@ -43,6 +77,7 @@ const SignUpScreen = ({ navigation }) => {
       <Text style={styles.link} onPress={() => navigation.navigate('Login')}>
         Already have an account? Log in
       </Text>
+      <Toast />
     </View>
   );
 };
