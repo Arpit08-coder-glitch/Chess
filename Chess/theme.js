@@ -11,5 +11,6 @@ export const darkTheme = {
     text: '#ffffff',
     chessboardDarkSquare: '#2e2e2e', // Dark squares
     chessboardLightSquare: '#d4d4d4', // Light squares
+    textPrimary: '#E0E0E0', // Primary text color (light gray)
   },
 };
