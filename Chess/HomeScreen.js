@@ -102,13 +102,16 @@ const MovesScreen = ({ route }) => {
     </View>
   );
 };
+
 const HomeScreen = () => {
   const [moves, setMoves] = useState([]);
 
+  // Add a move to the state
   const addMove = (move) => {
     console.log('Adding move to state:', move);
     setMoves((prevMoves) => [...prevMoves, move]); // Add move to the state
   };
+
   return (
     <PaperProvider theme={darkTheme}>
         <Tab.Navigator
@@ -153,6 +156,7 @@ const HomeScreen = () => {
     </PaperProvider>
   );
 };
+
 const styles = StyleSheet.create({
   chessContainer: {
     flex: 1,
