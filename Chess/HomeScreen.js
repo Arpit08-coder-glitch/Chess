@@ -7,6 +7,7 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import { GiftedChat } from 'react-native-gifted-chat';
 import { darkTheme } from './theme';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import axios from 'axios'; // for making API requests to OpenAI
 
 const Tab = createBottomTabNavigator();
 
@@ -62,8 +63,53 @@ const ChatScreen = () => {
       },
     };
 
-    setTimeout(() => setMessages((previousMessages) => GiftedChat.append(previousMessages, [botResponse])), 1000);
+    // Call AI API for response
+    getAIResponse(userMessage).then((aiMessage) => {
+      setMessages((previousMessages) => GiftedChat.append(previousMessages, [aiMessage]));
+    });
   }, []);
+
+  const getAIResponse = async (userMessage) => {
+    try {
+      // Send user message to OpenAI API (use your OpenAI API key here)
+      const response = await axios.post(
+        'https://api.openai.com/v1/completions',
+        {
+          model: 'text-davinci-003', // or another model like 'gpt-3.5-turbo'
+          prompt: userMessage,
+          max_tokens: 100,
+        },
+        {
+          headers: {
+            Authorization: `Bearer YOUR_OPENAI_API_KEY`, // Replace with your API key
+          },
+        }
+      );
+
+      const aiMessage = {
+        _id: Math.random().toString(36).substring(7),
+        text: response.data.choices[0].text.trim(),
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'AI Chatbot',
+        },
+      };
+
+      return aiMessage;
+    } catch (error) {
+      console.error('Error with AI request:', error);
+      return {
+        _id: Math.random().toString(36).substring(7),
+        text: 'Sorry, something went wrong.',
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'AI Chatbot',
+        },
+      };
+    }
+  };
 
   return (
     <View style={styles.chatContainer}>
