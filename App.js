@@ -1,5 +1,7 @@
 // App.js
 import React from 'react';
+import 'react-native-gesture-handler';  // Must be the first import
+import 'react-native-reanimated';       // Fix crashes related to reanimated
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './LoginScreen';
